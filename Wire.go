@@ -656,6 +656,11 @@ func InitializeApp() (*App, error) {
 
 		telemetry.NewTelemetryEventClientImpl,
 		wire.Bind(new(telemetry.TelemetryEventClient), new(*telemetry.TelemetryEventClientImpl)),
+
+		router.NewTelemetryRouterImpl,
+		wire.Bind(new(router.TelemetryRouter), new(*router.TelemetryRouterImpl)),
+		restHandler.NewTelemetryRestHandlerImpl,
+		wire.Bind(new(restHandler.TelemetryRestHandler), new(*restHandler.TelemetryRestHandlerImpl)),
 	)
 	return &App{}, nil
 }
