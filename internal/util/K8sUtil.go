@@ -48,20 +48,21 @@ func (impl K8sUtil) GetClient(clusterConfig *ClusterConfig) (*v12.CoreV1Client, 
 	cfg.BearerToken = clusterConfig.BearerToken
 	cfg.Insecure = true
 	client, err := v12.NewForConfig(cfg)
-
 	return client, err
 }
 
-func (impl K8sUtil) GetClientForIncluster(clusterConfig *ClusterConfig) (*v12.CoreV1Client, error) {
+func (impl K8sUtil) GetClientForInCluster() (*v12.CoreV1Client, error) {
 	// creates the in-cluster config
 	config, err := rest.InClusterConfig()
 	if err != nil {
-		panic(err.Error())
+		impl.logger.Errorw("error", "error", err)
+		return nil, err
 	}
 	// creates the clientset
 	clientset, err := v12.NewForConfig(config)
 	if err != nil {
-		panic(err.Error())
+		impl.logger.Errorw("error", "error", err)
+		return nil, err
 	}
 	return clientset, err
 }
@@ -79,13 +80,29 @@ func (impl K8sUtil) GetK8sDiscoveryClient(clusterConfig *ClusterConfig) (*discov
 	return client, err
 }
 
+func (impl K8sUtil) GetK8sDiscoveryClientInCluster() (*discovery.DiscoveryClient, error) {
+	config, err := rest.InClusterConfig()
+	if err != nil {
+		impl.logger.Errorw("error", "error", err)
+		return nil, err
+	}
+	client, err := discovery.NewDiscoveryClientForConfig(config)
+	if err != nil {
+		impl.logger.Errorw("error", "error", err)
+		return nil, err
+	}
+	return client, err
+}
+
 func (impl K8sUtil) CreateNsIfNotExists(namespace string, clusterConfig *ClusterConfig) (err error) {
 	client, err := impl.GetClient(clusterConfig)
 	if err != nil {
+		impl.logger.Errorw("error", "error", err, "clusterConfig", clusterConfig)
 		return err
 	}
 	exists, err := impl.checkIfNsExists(namespace, client)
 	if err != nil {
+		impl.logger.Errorw("error", "error", err, "clusterConfig", clusterConfig)
 		return err
 	}
 	if exists {
