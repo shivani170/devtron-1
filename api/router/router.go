@@ -73,8 +73,8 @@ type MuxRouter struct {
 	commonRouter                     CommonRouter
 	grafanaRouter                    GrafanaRouter
 	ssoLoginRouter                   SsoLoginRouter
-	telemetryWatcher                 telemetry.TelemetryEventClient
 	telemetryRouter                  TelemetryRouter
+	telemetryWatcher                 telemetry.TelemetryEventClient
 }
 
 func NewMuxRouter(logger *zap.SugaredLogger, HelmRouter HelmRouter, PipelineConfigRouter PipelineConfigRouter,
@@ -93,7 +93,7 @@ func NewMuxRouter(logger *zap.SugaredLogger, HelmRouter HelmRouter, PipelineConf
 	ReleaseMetricsRouter ReleaseMetricsRouter, deploymentGroupRouter DeploymentGroupRouter, batchOperationRouter BatchOperationRouter,
 	chartGroupRouter ChartGroupRouter, testSuitRouter TestSuitRouter, imageScanRouter ImageScanRouter,
 	policyRouter PolicyRouter, gitOpsConfigRouter GitOpsConfigRouter, dashboardRouter DashboardRouter, attributesRouter AttributesRouter,
-	commonRouter CommonRouter, grafanaRouter GrafanaRouter, ssoLoginRouter SsoLoginRouter, telemetryWatcher telemetry.TelemetryEventClient,telemetryRouter TelemetryRouter) *MuxRouter {
+	commonRouter CommonRouter, grafanaRouter GrafanaRouter, ssoLoginRouter SsoLoginRouter, telemetryRouter TelemetryRouter, telemetryWatcher telemetry.TelemetryEventClient) *MuxRouter {
 	r := &MuxRouter{
 		Router:                           mux.NewRouter(),
 		HelmRouter:                       HelmRouter,
@@ -137,8 +137,8 @@ func NewMuxRouter(logger *zap.SugaredLogger, HelmRouter HelmRouter, PipelineConf
 		commonRouter:                     commonRouter,
 		grafanaRouter:                    grafanaRouter,
 		ssoLoginRouter:                   ssoLoginRouter,
-		telemetryWatcher:                 telemetryWatcher,
 		telemetryRouter:                  telemetryRouter,
+		telemetryWatcher:                 telemetryWatcher,
 	}
 	return r
 }

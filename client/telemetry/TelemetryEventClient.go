@@ -81,34 +81,25 @@ func (impl *TelemetryEventClientImpl) StopCron() {
 }
 
 type TelemetryEventDto struct {
-	UCID         string    `json:"ucid"` //unique client id
-	Timestamp    time.Time `json:"timestamp"`
-	EventMessage string    `json:"eventMessage"`
-	//EventType    TelemetryEventType `json:"eventType"`
-	//Summary                 *SummaryDto        `json:"summary"`
-	ServerVersion           string `json:"serverVersion"`
-	DevtronVersion          string `json:"devtronVersion"`
-	ProdAppCount            int    `json:"prodAppCount"`
-	NonProdAppCount         int    `json:"nonProdAppCount"`
-	UserCount               int    `json:"userCount"`
-	EnvironmentCount        int    `json:"environmentCount"`
-	ClusterCount            int    `json:"clusterCount"`
-	CiCountPerDay           int    `json:"ciCountPerDay"`
-	CdCountPerDay           int    `json:"cdCountPerDay"`
-	HelmChartCount          int    `json:"helmChartCount"`
-	SecurityScanCountPerDay int    `json:"securityScanCountPerDay"`
+	UCID           string             `json:"ucid"` //unique client id
+	Timestamp      time.Time          `json:"timestamp"`
+	EventMessage   string             `json:"eventMessage,omitempty"`
+	EventType      TelemetryEventType `json:"eventType"`
+	Summary        *SummaryDto        `json:"summary,omitempty"`
+	ServerVersion  string             `json:"serverVersion,omitempty"`
+	DevtronVersion string             `json:"devtronVersion,omitempty"`
 }
 
 type SummaryDto struct {
-	ProdAppCount            int `json:"prodAppCount"`
-	NonProdAppCount         int `json:"nonProdAppCount"`
-	UserCount               int `json:"userCount"`
-	EnvironmentCount        int `json:"environmentCount"`
-	ClusterCount            int `json:"clusterCount"`
-	CiCountPerDay           int `json:"ciCountPerDay"`
-	CdCountPerDay           int `json:"cdCountPerDay"`
-	HelmChartCount          int `json:"helmChartCount"`
-	SecurityScanCountPerDay int `json:"securityScanCountPerDay"`
+	ProdAppCount            int `json:"prodAppCount,omitempty"`
+	NonProdAppCount         int `json:"nonProdAppCount,omitempty"`
+	UserCount               int `json:"userCount,omitempty"`
+	EnvironmentCount        int `json:"environmentCount,omitempty"`
+	ClusterCount            int `json:"clusterCount,omitempty"`
+	CiCountPerDay           int `json:"ciCountPerDay,omitempty"`
+	CdCountPerDay           int `json:"cdCountPerDay,omitempty"`
+	HelmChartCount          int `json:"helmChartCount,omitempty"`
+	SecurityScanCountPerDay int `json:"securityScanCountPerDay,omitempty"`
 }
 
 const DevtronUniqueClientIdConfigMap = "devtron-ucid"
@@ -165,7 +156,7 @@ func (impl *TelemetryEventClientImpl) SummaryEventForTelemetry() {
 		impl.logger.Errorw("exception caught inside telemetry summary event", "err", err)
 		return
 	}
-	payload := &TelemetryEventDto{UCID: ucid, Timestamp: time.Now(), DevtronVersion: "v1"}
+	payload := &TelemetryEventDto{UCID: ucid, Timestamp: time.Now(), EventType: Summary, DevtronVersion: "v1"}
 	payload.ServerVersion = k8sServerVersion.String()
 	clusters, err := impl.clusterService.FindAllActive()
 	if err != nil && err != pg.ErrNoRows {
@@ -209,16 +200,16 @@ func (impl *TelemetryEventClientImpl) SummaryEventForTelemetry() {
 		return
 	}
 
-	//summery := &SummaryDto{
-	payload.ProdAppCount = prodApps
-	payload.NonProdAppCount = nonProdApps
-	payload.UserCount = len(users)
-	payload.EnvironmentCount = len(environments)
-	payload.ClusterCount = len(clusters)
-	payload.CiCountPerDay = len(ciPipeline)
-	payload.CdCountPerDay = len(cdPipeline)
-	//}
-	//payload.Summary = summery
+	summery := &SummaryDto{
+		ProdAppCount:     prodApps,
+		NonProdAppCount:  nonProdApps,
+		UserCount:        len(users),
+		EnvironmentCount: len(environments),
+		ClusterCount:     len(clusters),
+		CiCountPerDay:    len(ciPipeline),
+		CdCountPerDay:    len(cdPipeline),
+	}
+	payload.Summary = summery
 	reqBody, err := json.Marshal(payload)
 	if err != nil {
 		impl.logger.Errorw("SummaryEventForTelemetry, payload marshal error", "error", err)
@@ -273,7 +264,7 @@ func (impl *TelemetryEventClientImpl) HeartbeatEventForTelemetry() {
 		impl.logger.Errorw("exception caught inside telemetry heartbeat event", "err", err)
 		return
 	}
-	payload := &TelemetryEventDto{UCID: ucid, Timestamp: time.Now(), DevtronVersion: "v1"}
+	payload := &TelemetryEventDto{UCID: ucid, Timestamp: time.Now(), EventType: Heartbeat, DevtronVersion: "v1"}
 	payload.ServerVersion = k8sServerVersion.String()
 	reqBody, err := json.Marshal(payload)
 	if err != nil {
